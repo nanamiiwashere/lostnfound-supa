@@ -1,6 +1,8 @@
 <?php
 require_once './connect.php';
 require_once './Auth/auth-handler.php';
+require_once './core/envPrivilege.php';
+
 $stmt = $pdo->query("SELECT * FROM barang_temuan WHERE status='open' ORDER BY created_at DESC LIMIT 8");
 $barang_temuan = $stmt->fetchAll();
 
@@ -82,7 +84,7 @@ $resolved   = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='reso
             <a href="./dashboard/profil.php"class="dropdown-dark-item"><i class="fas fa-user-circle mr-2"></i>Profile</a>
             <a href="./dashboard/messages.php"class="dropdown-dark-item"><i class="fas fa-envelope mr-2"></i>Messages</a>
             <hr style="border-color:rgba(255,255,255,.08);margin:4px 0;"/>
-            <a href="Auth/logout.php" class="dropdown-dark-item" style="color:#f87171;"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
+            <a href="./Auth/logout.php" class="dropdown-dark-item" style="color:#f87171;"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
           </div>
         </div>
  

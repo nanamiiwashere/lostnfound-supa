@@ -13,7 +13,7 @@ define('DISCORD_CLIENT_ID', getenv('DISCORD_CLIENT_ID') ?: '');
 define('DISCORD_CLIENT_SECRET', getenv('DISCORD_CLIENT_SECRET') ?: '');
 define('DISCORD_REDIRECT_URL', getenv('DISCORD_REDIRECT_URL') ?: '');
 
-define('APP_URL', rtrim(getenv('APP_URL') ?: 'https://localhost/lostnfound-minami', '/' . '/'));
+define('APP_URL', rtrim(getenv('APP_URL') ?: 'http://localhost:8000', '/' . '/'));
 
 function isLoggedIn():bool {
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);

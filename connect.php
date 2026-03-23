@@ -10,16 +10,16 @@ if ($db_url){
     #parse database url
     $parsed = parse_url($db_url);
     $host = $parsed['host'];
-    $port = $parsed['port'] ?? 5432;
+    $port = $parsed['port'] ?? 6543;
     $dbname = ltrim($parsed['path'], '/');
     $user = $parsed['user'];
     $pass = $parsed['pass'];
 } else {
     #fallback local
     $host = getenv('DB_HOST') ?: '';
-    $port = getenv('DB_PORT') ?: '';
-    $dbname = getenv('DB_NAME') ?: '';
-    $user = getenv('DB_USER') ?: '';
+    $port = getenv('DB_PORT') ?: '6543';
+    $dbname = getenv('DB_NAME') ?: 'postgres';
+    $user = getenv('DB_USER') ?: 'postgres';
     $pass = getenv('DB_PASS') ?: '';
 }
 
