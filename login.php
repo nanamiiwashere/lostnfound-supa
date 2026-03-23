@@ -15,11 +15,11 @@ $googleUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' .http_build_query([
     'scope' => 'openid email profile',
 ]);
 
-$discordUrl = 'https://discord.com/api/oauth2/authorize?' . http_build_query([
+$discordUrl = 'https://discord.com/oauth2/authorize?' . http_build_query([
     'client_id' => DISCORD_CLIENT_ID,
     'redirect_uri' => DISCORD_REDIRECT_URI,
     'response_type' => 'code',
-    'scope' => 'openid email profile',
+    'scope' => 'identify email',
 ]);
 
 $urlError = $_GET['error'] ?? '';
