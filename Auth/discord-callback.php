@@ -50,7 +50,7 @@ $avatar = $discordUser['avatar']
 $name  = $discordUser['global_name'] ?? $discordUser['username'];
 
 $stmt = $pdo->prepare("SELECT * FROM users WHERE oauth_uid = ? AND oauth_provider = 'discord'");
-$stmt -> execute([$discordUser['email']]);
+$stmt -> execute([$discordUser['id']]);
 $user = $stmt -> fetch();
 
 if (!$user){
