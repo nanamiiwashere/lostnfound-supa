@@ -11,7 +11,7 @@ define('GOOGLE_REDIRECT_URI', getenv('GOOGLE_REDIRECT_URI') ?: '');
 
 define('DISCORD_CLIENT_ID', getenv('DISCORD_CLIENT_ID') ?: '');
 define('DISCORD_CLIENT_SECRET', getenv('DISCORD_CLIENT_SECRET') ?: '');
-define('DISCORD_REDIRECT_URL', getenv('DISCORD_REDIRECT_URL') ?: '');
+define('DISCORD_REDIRECT_URI', getenv('DISCORD_REDIRECT_URI') ?: '');
 
 define('APP_URL', rtrim(getenv('APP_URL') ?: 'http://localhost:8000', '/' . '/'));
 
