@@ -1,7 +1,6 @@
 <?php
 require_once './connect.php';
 require_once './Auth/auth-handler.php';
-require_once './core/envPrivilege.php';
 
 $stmt = $pdo->query("SELECT * FROM barang_temuan WHERE status='open' ORDER BY created_at DESC LIMIT 8");
 $barang_temuan = $stmt->fetchAll();
