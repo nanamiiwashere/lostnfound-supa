@@ -16,7 +16,7 @@ if ($db_url){
     $pass = $parsed['pass'];
 } else {
     #fallback local
-    $host = getenv('DB_HOST') ?: 'localhost';
+    $host = getenv('DB_HOST') ?: 'db.sdtenasvwqdkunztwcyy.supabase.co';
     $port = getenv('DB_PORT') ?: '5432';
     $dbname = getenv('DB_NAME') ?: 'postgres';
     $user = getenv('DB_USER') ?: 'postgres';
