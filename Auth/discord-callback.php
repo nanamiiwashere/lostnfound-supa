@@ -6,7 +6,7 @@ require_once '../Auth/auth3thparty.php';
 
 $code  = $_GET['code'] ?? '';
 if (!$code) {
-    header('Location: ' . APP_URL . 'login.php');
+    header('Location: ' . APP_URL . '/login.php');
     exit;
 }
 
