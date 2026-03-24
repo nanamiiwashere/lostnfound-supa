@@ -23,6 +23,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_laporan'])) {
     exit();
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_laporan'])) {
+    $id = (int)$_POST['id_laporan'];
+    if ($id) {
+        // 1. Hapus serah_terima dulu (FK ke pencocokan)
+        $pdo->prepare("
+            DELETE FROM serah_terima
+            WHERE id_pencocokan IN (
+                SELECT id_pencocokan FROM pencocokan WHERE id_laporan = ?
+            )
+        ")->execute([$id]);
+        // 2. Hapus pencocokan
+        $pdo->prepare("DELETE FROM pencocokan WHERE id_laporan = ?")->execute([$id]);
+        // 3. Hapus laporan
+        $pdo->prepare("DELETE FROM laporan_kehilangan WHERE id_laporan = ?")->execute([$id]);
+    }
+    header("Location: staff-laporan.php?deleted=1");
+    exit();
+}
+
 $filterStatus = $_GET['status'] ?? '';
 $filterType   = $_GET['type']   ?? '';
 $search       = trim($_GET['q'] ?? '');
@@ -70,7 +89,7 @@ $updated = isset($_GET['updated']);
  
   <div class="page-content">
  
-
+ 
     <div class="row g-3 mb-4">
       <div class="col-6 col-xl-4">
         <div class="stat-card">
@@ -104,8 +123,11 @@ $updated = isset($_GET['updated']);
     <?php if ($updated): ?>
       <div class="alert-success mb-4"><i class="fas fa-check-circle me-2"></i>Laporan berhasil diupdate.</div>
     <?php endif; ?>
+    <?php if (isset($_GET['deleted'])): ?>
+      <div class="alert-success mb-4"><i class="fas fa-trash me-2"></i>Laporan berhasil dihapus.</div>
+    <?php endif; ?>
  
-
+ 
     <form method="GET" class="dash-card p-3 mb-4">
       <div class="row g-2 align-items-end">
         <div class="col-md-4">
@@ -137,7 +159,7 @@ $updated = isset($_GET['updated']);
       </div>
     </form>
  
-
+ 
     <div class="dash-card">
       <div class="dash-card-header">
         <span class="dash-card-title"><i class="fas fa-file-alt me-2" style="color:#f87171;"></i>Semua Laporan <span style="color:#64748b;font-size:.8rem;font-weight:400;">(<?= count($items) ?> entri)</span></span>
@@ -196,7 +218,7 @@ $updated = isset($_GET['updated']);
   </div>
 </div>
  
-
+ 
 <div id="detailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:998;align-items:center;justify-content:center;padding:1rem;">
   <div class="dash-card" style="width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
     <div class="dash-card-header">
@@ -204,17 +226,17 @@ $updated = isset($_GET['updated']);
       <button onclick="closeDetailModal()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:1.1rem;padding:0;"><i class="fas fa-times"></i></button>
     </div>
     <div class="p-4">
-
+ 
       <div id="detail_img_wrap" style="display:none;margin-bottom:1rem;">
         <img id="detail_img" src="" class="w-100 rounded-3" style="max-height:220px;object-fit:cover;" alt="foto barang"/>
       </div>
-
+ 
       <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
         <h5 id="detail_nama" style="font-family:'Clash Display',sans-serif;color:#fff;margin:0;"></h5>
         <div class="d-flex gap-2 flex-wrap" id="detail_badges"></div>
       </div>
  
-
+ 
       <div class="row g-3">
         <div class="col-12">
           <div style="color:#64748b;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Deskripsi</div>
@@ -248,7 +270,7 @@ $updated = isset($_GET['updated']);
   </div>
 </div>
  
-
+ 
 <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center;">
   <div class="dash-card p-4" style="width:100%;max-width:380px;margin:1rem;">
     <div style="font-family:'Clash Display',sans-serif;font-weight:700;color:#fff;margin-bottom:1.2rem;font-size:1.1rem;">
@@ -277,16 +299,29 @@ $updated = isset($_GET['updated']);
         <button type="button" class="btn-ghost-sm" onclick="closeModal()">Batal</button>
       </div>
     </form>
+
+        <!-- Separator + Delete -->
+      <div style="border-top:1px solid rgba(255,255,255,.07);margin-top:1.2rem;padding-top:1rem;">
+        <form method="POST" onsubmit="return confirm('Hapus laporan ini? Semua data terkait juga akan dihapus.')">
+          <input type="hidden" name="id_laporan" id="modal_del_id"/>
+          <input type="hidden" name="delete_laporan" value="1"/>
+          <button type="submit" class="w-100" style="background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;">
+            <i class="fas fa-trash me-2"></i>Hapus Laporan Ini
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
   </div>
 </div>
  
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-
+ 
 function openDetailModal(data) {
   document.getElementById('detail_nama').textContent = data.nama_barang;
  
-
+ 
   const bdgColors = {
     lost:     'bdg-lost',
     found:    'bdg-found',
@@ -316,13 +351,13 @@ function openDetailModal(data) {
   document.getElementById('detail_tanggal').textContent    = data.tanggal;
   document.getElementById('detail_dilaporkan').textContent = data.dilaporkan;
  
-
+ 
   const pelapor = document.getElementById('detail_pelapor');
   pelapor.innerHTML = data.email
     ? `${data.pelapor}<br><a href="mailto:${data.email}" style="color:#f97316;font-size:.82rem;text-decoration:none;"><i class="fas fa-envelope me-1"></i>${data.email}</a>`
     : data.pelapor;
  
-
+ 
   document.getElementById('detail_edit_btn').onclick = function() {
     closeDetailModal();
     openEditModal(data.id, data.status, data.type);
@@ -342,6 +377,7 @@ document.getElementById('detailModal').addEventListener('click', function(e) {
  
 function openEditModal(id, status, type) {
   document.getElementById('modal_id').value     = id;
+  document.getElementById('modal_del_id').value = id;
   document.getElementById('modal_status').value = status;
   document.getElementById('modal_type').value   = type;
   const m = document.getElementById('editModal');

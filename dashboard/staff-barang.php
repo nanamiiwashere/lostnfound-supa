@@ -38,6 +38,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     }
 
+    if (isset($_POST['delete_barang'])){
+        $id = (int)$_POST['id_barang'];
+        $pdo -> prepare("DELETE FROM pencocokan WHERE id_barang=?") -> execute([$id]);
+        $pdo -> prepare("DELETE FROM barang_temuan WHERE id_barang=?") -> execute([$id]);
+        $success = 'Barang temuan berhasil dihapus.';
+        header("Location: staff-barang.php?deleted=1");
+        exit();
+    }
+
     if (isset($_POST['update_status'])){
         $id = (int)$_POST['id_barang'];
         $status = $_POST['status'];
@@ -86,6 +95,12 @@ $categories = ['Electronics','Bags','Documents','Accessories','Clothing','Jewelr
   <div class="page-content">
     <?php if ($success): ?>
       <div class="alert-success mb-4"><i class="fas fa-check-circle me-2"></i><?= $success ?></div>
+    <?php endif; ?>
+    <?php if (isset($_GET['deleted'])): ?>
+      <div class="alert-success mb-4"><i class="fas fa-trash me-2"></i>Barang temuan berhasil dihapus.</div>
+    <?php endif; ?>
+    <?php if (isset($_GET['success'])): ?>
+      <div class="alert-success mb-4"><i class="fas fa-check-circle me-2"></i>Barang temuan berhasil ditambahkan!</div>
     <?php endif; ?>
     <?php if ($error): ?>
       <div class="alert-error mb-4"><i class="fas fa-exclamation-circle me-2"></i><?= $error ?></div>
@@ -209,7 +224,18 @@ $categories = ['Electronics','Bags','Documents','Accessories','Clothing','Jewelr
                 </form>
               </td>
               <td>
-                <a href="staff-pencocokan.php?action=add&id_barang=<?= $b['id_barang'] ?>" class="btn-ghost-sm" title="Cocokkan"><i class="fas fa-link"></i></a>
+                <div class="d-flex gap-1 flex-wrap">
+                  <a href="staff-pencocokan.php?action=add&id_barang=<?= $b['id_barang'] ?>" class="btn-ghost-sm" title="Cocokkan">
+                    <i class="fas fa-link"></i>
+                  </a>
+                  <form method="POST" onsubmit="return confirm('Hapus barang ini? Data pencocokan terkait juga akan dihapus.')">
+                    <input type="hidden" name="id_barang" value="<?= $b['id_barang'] ?>"/>
+                    <input type="hidden" name="delete_barang" value="1"/>
+                    <button type="submit" class="btn-ghost-sm btn-danger-sm">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
               </td>
             </tr>
             <?php endforeach; ?>
@@ -236,4 +262,3 @@ function previewImg(input) {
 }
 </script>
 </body>
-</html>
