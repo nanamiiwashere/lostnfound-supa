@@ -94,13 +94,13 @@ $resolved   = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='reso
     </div>
 
    
-    <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-300 p-2" style="background:none;border:none;">
+    <button onclick="toggleMobileMenu()" class="lg:hidden" style="background:none;border:none;color:#e2e8f0;cursor:pointer;padding:4px;">
       <i class="fas fa-bars text-lg" id="hamburgerIcon"></i>
     </button>
   </div>
  
-
-  <div id="mobileMenu" class="hidden lg:hidden border-t px-4 py-3" style="border-color:rgba(255,255,255,.07);background:rgba(8,12,20,.97);">
+ 
+  <div id="mobileMenu" class="nav-hidden lg:hidden border-t px-4 py-3" style="border-color:rgba(255,255,255,.07);background:rgba(8,12,20,.97);">
     <ul class="list-none m-0 p-0 flex flex-col gap-1 mb-3">
       <li><a href="index.php"  class="nav-link block">Beranda</a></li>
       <li><a href="items.php"  class="nav-link block">Cari Barang</a></li>
