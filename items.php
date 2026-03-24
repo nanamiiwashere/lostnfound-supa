@@ -272,25 +272,76 @@ $catIcons = [
 </section>
 <?php endif; ?>
  
-<!-- FOOTER -->
+<!-- ══ FOOTER ══ -->
 <footer>
   <div class="container">
-    <div class="row align-items-center">
-      <div class="col-md-4 mb-3 mb-md-0">
-        <div class="navbar-brand mb-1">Lostn<span class="accent">Found</span></div>
-        <div style="color:var(--muted);font-size:.85rem;">Forum penemuan barang hilang KRL Commuterline</div>
-      </div>
-      <div class="col-md-4 text-center mb-3 mb-md-0">
-        <div class="d-flex justify-content-center gap-3">
-          <a href="items.php" style="color:var(--accent);font-size:.85rem;text-decoration:none;font-weight:600;">Cari Barang</a>
-          <a href="news.php"  style="color:var(--muted);font-size:.85rem;text-decoration:none;">Berita</a>
-          <a href="about.php" style="color:var(--muted);font-size:.85rem;text-decoration:none;">Tentang</a>
+    <div class="row g-4 pb-4" style="border-bottom:1px solid var(--border);">
+ 
+      <!-- Brand + desc -->
+      <div class="col-lg-4 col-md-6">
+        <div class="navbar-brand mb-2">Lostn<span class="accent">Found</span></div>
+        <div style="color:var(--muted);font-size:.85rem;line-height:1.7;max-width:280px;">
+          Forum penemuan barang hilang di transportasi kereta commuterlink nusantara.
+        </div>
+        <!-- Socmed -->
+        <div class="d-flex gap-3 mt-3">
+          <a href="#" style="color:var(--muted);font-size:1.1rem;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#" style="color:var(--muted);font-size:1.1rem;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" style="color:var(--muted);font-size:1.1rem;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">
+            <i class="fab fa-facebook"></i>
+          </a>
+          <a href="#" style="color:var(--muted);font-size:1.1rem;transition:color .2s;" onmouseover="this.style.color='#5865f2'" onmouseout="this.style.color='#64748b'">
+            <i class="fab fa-discord"></i>
+          </a>
         </div>
       </div>
-      <div class="col-md-4 text-md-end">
-        <div style="color:var(--muted);font-size:.85rem;">© <?= date('Y') ?> LostnFound</div>
+ 
+      <!-- Links -->
+      <div class="col-lg-2 col-md-3 col-6">
+        <div style="color:#e2e8f0;font-weight:700;font-size:.85rem;margin-bottom:12px;font-family:'Clash Display',sans-serif;">Quick Links</div>
+        <div class="d-flex flex-column gap-2">
+          <a href="items.php" style="color:var(--muted);font-size:.85rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">Browse Items</a>
+          <a href="news.php"  style="color:var(--muted);font-size:.85rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">News</a>
+          <a href="about.php" style="color:var(--muted);font-size:.85rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">About</a>
+        </div>
       </div>
+ 
+      <!-- Account -->
+      <div class="col-lg-2 col-md-3 col-6">
+        <div style="color:#e2e8f0;font-weight:700;font-size:.85rem;margin-bottom:12px;font-family:'Clash Display',sans-serif;">Akun</div>
+        <div class="d-flex flex-column gap-2">
+          <?php if (isLoggedIn()): ?>
+            <a href="dashboard/index.php" style="color:var(--muted);font-size:.85rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">Dashboard</a>
+            <a href="./dashboard/buat-laporan.php"       style="color:var(--muted);font-size:.85rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">Post Item</a>
+            <a href="Auth/logout.php"     style="color:#f87171;font-size:.85rem;text-decoration:none;">Logout</a>
+          <?php else: ?>
+            <a href="./login.php"    style="color:var(--muted);font-size:.85rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">Login</a>
+            <a href="./register.php" style="color:var(--muted);font-size:.85rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#64748b'">Register</a>
+          <?php endif; ?>
+        </div>
+      </div>
+ 
+      <!-- Contact -->
+      <div class="col-lg-4 col-md-6">
+        <div style="color:#e2e8f0;font-weight:700;font-size:.85rem;margin-bottom:12px;font-family:'Clash Display',sans-serif;">Kontak</div>
+        <div class="d-flex flex-column gap-2">
+          <div style="color:var(--muted);font-size:.85rem;"><i class="fas fa-envelope me-2" style="color:var(--accent);"></i>lostnfound@krl.co.id</div>
+          <div style="color:var(--muted);font-size:.85rem;"><i class="fas fa-phone me-2" style="color:var(--accent);"></i>021-1234-5678</div>
+          <div style="color:var(--muted);font-size:.85rem;"><i class="fas fa-map-marker-alt me-2" style="color:var(--accent);"></i>Jakarta, Indonesia</div>
+        </div>
+      </div>
+ 
     </div>
+ 
+    <!-- Copyright -->
+    <div class="d-flex justify-content-between align-items-center pt-4 flex-wrap gap-2">
+      <div style="color:var(--muted);font-size:.82rem;">© <?= date('Y') ?> LostnFound · Powered by Commuterlink Nusantara</div>
+    </div>
+ 
   </div>
 </footer>
  
