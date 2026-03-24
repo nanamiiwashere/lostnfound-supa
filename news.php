@@ -1,6 +1,6 @@
 <?php
 require_once './connect.php';
-require_once './auth/auth3thparty.php';
+require_once './Auth/auth3thparty.php';
 
 $news = $pdo -> query("SELECT * FROM news ORDER BY created_at DESC") -> fetchAll();
 
