@@ -806,4 +806,15 @@ footer {
     display: block;
     opacity: .4;
 }
+
+.btn-danger-sm {
+    color: #f87171;
+    border-color: rgba(239,68,68,.2);
+}
+
+.btn-danger-sm:hover {
+    background: rgba(239,68,68,.1);
+    border-color: rgba(239,68,68,.4);
+    color: #fca5a5;
+}
  
