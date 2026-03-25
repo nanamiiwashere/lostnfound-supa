@@ -1,9 +1,6 @@
 <?php
 require_once __DIR__ . '/../connect.php';
 
-define('SUPABASE_URL', getenv('SUPABASE_URL') ?: '');
-define('SUPABASE_KEY', getenv('SUPABASE_KEY') ?: '');
-
 function uploadToSupabase(string $fileTmp, string $fileName, string $bucket): string|false {
     $url = SUPABASE_URL . '/storage/v1/object/' . $bucket . "/" . $fileName;
 
