@@ -1,5 +1,5 @@
 <?php
-require_once './Core/supabase-handler.php';
+require_once '../Core/supabase-handler.php';
 
 $activePage = $activePage ?? '';
 $u = currentUser();
