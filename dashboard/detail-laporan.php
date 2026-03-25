@@ -3,6 +3,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
 require_once '../Core/supabase-handler.php';
+require_once '../Core/supabase-img.php';
 requireLogin();
 
 $u = currentUser();
@@ -61,13 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['konfirmasi'])){
 }
 
 $confirmed = isset($_GET['confirmed']);
-
-function supabaseImageUrl($fileName) {
-  if (empty($fileName)) return null;
-  if (str_starts_with($fileName, 'http')) return $fileName;
-  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
-}
-
 ?>
 
 <!DOCTYPE html>

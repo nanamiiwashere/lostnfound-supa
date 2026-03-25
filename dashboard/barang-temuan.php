@@ -3,6 +3,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
 require_once '../Core/supabase-handler.php';
+require_once '../Core/supabase-img.php';
 requireLogin();
 $u = currentUser();
 $activePage = 'temuan';
@@ -24,13 +25,6 @@ if ($kategori != 'all'){
 $stmt = $pdo -> prepare("SELECT * FROM barang_temuan $where ORDER BY created_at DESC");
 $stmt -> execute($params);
 $items = $stmt -> fetchAll();
-
-function supabaseImageUrl($fileName) {
-  if (empty($fileName)) return null;
-  if (str_starts_with($fileName, 'http')) return $fileName;
-  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
-}
-
 ?>
 
 <!DOCTYPE html>
