@@ -4,6 +4,9 @@ if (session_status() == PHP_SESSION_NONE){
         session_status();
 }
 
+define('SUPABASE_URL', getenv('SUPABASE_URL') ?: '');
+define('SUPABASE_KEY', getenv('SUPABASE_KEY') ?: '');
+
 $db_url = getenv('DATABASE_URL');
     
 if ($db_url){
