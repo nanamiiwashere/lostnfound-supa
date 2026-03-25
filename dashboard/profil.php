@@ -113,8 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
           <?php
             $avatarSrc = null;
             if (!empty($user['avatar'])) {
-                // OAuth avatar = full URL, local upload = relative path
-                $avSrc = supabaseImageUrl($user['avatar'], 'uploads');
+                $avatarSrc = supabaseImageUrl($user['avatar'], 'uploads');
             }
           ?>
           <?php if ($avatarSrc): ?>
