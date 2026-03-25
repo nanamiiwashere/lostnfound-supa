@@ -4,10 +4,21 @@ require_once __DIR__ . '/../connect.php';
 function uploadToSupabase(string $fileTmp, string $fileName, string $bucket): string|false {
     $url = SUPABASE_URL . '/storage/v1/object/' . $bucket . "/" . $fileName;
 
+    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $mimeTypes = [
+        'jpg'   => 'image/jpeg',
+        'jpeg'  => 'image/jpeg',
+        'png'   => 'image/png',
+        'gif'   => 'image/gif',
+        'webp'  => 'image/webp',
+    ];
+
+    $contentType = $mimeTypes[$ext] ?? 'application/octet-stream';
+
     $header = [
         "apikey: " . SUPABASE_KEY,
         "Authorization: Bearer " . SUPABASE_KEY,
-        "Content-Type: application/octet-stream",
+        "Content-Type: " . $contentType,
     ];
 
     $ch = curl_init($url);
