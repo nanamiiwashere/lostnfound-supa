@@ -7,7 +7,8 @@ require_once '../Core/supabase-handler.php';
 requireLogin();
 $u = currentUser();
 $activePage = 'buat';
-$error = $success = '';
+$success = isset($_GET['added'])  ? 'Laporan berhasil dibuat!' : '';
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     $name = trim($_POST['nama_barang'] ?? '');
@@ -46,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             $pdo -> prepare("INSERT INTO laporan_kehilangan (id_pelapor, nama_barang, deskripsi, lokasi_kehilangan, tanggal_kehilangan, category, image, status, type)
             VALUES (?, ?, ?, ?, ?, ?, ?, 'open', 'lost')") -> execute([$u['id'], $name, $description, $location, $date, $category, $imageName]);
 
-            $success = 'Laporan berhasil dibuat!';
             header("Location: buat-laporan.php?added=1");
             exit();
         }
