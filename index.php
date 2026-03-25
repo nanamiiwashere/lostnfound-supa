@@ -18,7 +18,7 @@ $resolved   = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='reso
 function supabaseImageUrl($fileName) {
   if (empty($fileName)) return null;
   if (str_starts_with($fileName, 'http')) return $fileName;
-  return SUPABASE_URL . '/storage/v1/object/public/' . $fileName;
+  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
 }
 
 ?>
@@ -28,7 +28,7 @@ function supabaseImageUrl($fileName) {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LostnFound - Commuterlink Nusantara</title>
+  <title>LostnFound — Commuterlink Nusantara</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={corePlugins:{preflight:false}}</script>

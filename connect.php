@@ -6,6 +6,7 @@ if (session_status() == PHP_SESSION_NONE){
 
 define('SUPABASE_URL', getenv('SUPABASE_URL') ?: '');
 define('SUPABASE_KEY', getenv('SUPABASE_KEY') ?: '');
+define('SUPABASE_BUCKET', 'uploads');
 
 $db_url = getenv('DATABASE_URL');
     
