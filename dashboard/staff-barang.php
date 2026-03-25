@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-handler.php';
+require_once '../Core/supabase-img.php';
 
 requireLogin();
 if(($_SESSION['role']?? '') !== 'staff'){
@@ -26,9 +28,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $imageName = null;
         if (!empty($_FILES['image']['name'])) {
             $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $imageName = 'barang_' . uniqid() . '.' . $ext;
-            move_uploaded_file($_FILES['image']['tmp_name'], '../uploads/' . $imageName);
+            $fileName = uniqid('barang_') . '.' . $ext;
+              $supabaseUrl = uploadToSupabase(
+                $_FILES['image']['tmp_name'], $fileName, 'uploads'
+              );
+
+              if ($supabaseUrl !== false){
+                $imageName = $supabaseUrl;
+              } else {
+                $error = 'Gagal upload gambar ke server!, try again';
+              }
+            }
         }
+    
+      }
 
         $pdo -> prepare("INSERT INTO barang_temuan (nama_barang, deskripsi, category, lokasi_ditemukan, tanggal_ditemukan, type, image, id_petugas, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open')")
          -> execute([$nama, $deskripsi, $category, $lokasi, $tanggal, $type, $imageName, $u['id']]);
@@ -36,13 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         header("Location: staff-barang.php?success=1");
         exit();
 
-    }
 
     if (isset($_POST['delete_barang'])){
         $id = (int)$_POST['id_barang'];
         $pdo -> prepare("DELETE FROM pencocokan WHERE id_barang=?") -> execute([$id]);
         $pdo -> prepare("DELETE FROM barang_temuan WHERE id_barang=?") -> execute([$id]);
-        $success = 'Barang temuan berhasil dihapus.';
+        $success = isset($_GET['deleted']) ? 'BBarang temuan berhasil dihapus.' : '';
         header("Location: staff-barang.php?deleted=1");
         exit();
     }
@@ -54,8 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             $pdo -> prepare("UPDATE barang_temuan SET status=? WHERE id_barang=?") -> execute([$status, $id]);
         } 
         $success = 'Status berhasil diupdate.';
+        exit();
     }
-}
+
 
 $showForm = isset($_GET['action']) && $_GET['action'] === 'add';
 
@@ -200,7 +213,7 @@ $categories = ['Electronics','Bags','Documents','Accessories','Clothing','Jewelr
               <td style="color:#64748b;"><?= $b['id_barang'] ?></td>
               <td>
                 <?php if (!empty($b['image'])): ?>
-                  <img src="../uploads/<?= htmlspecialchars($b['image']) ?>" style="width:40px;height:40px;object-fit:cover;border-radius:8px;"/>
+                  <img src="<?= htmlspecialchars(supabaseImageUrl($b['image'])) ?>" style="width:40px;height:40px;object-fit:cover;border-radius:8px;"/>
                 <?php else: ?>
                   <div style="width:40px;height:40px;background:rgba(255,255,255,.05);border-radius:8px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-image" style="color:#475569;font-size:.75rem;"></i></div>
                 <?php endif; ?>

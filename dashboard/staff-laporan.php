@@ -2,12 +2,17 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-img.php';
 
 requireLogin();
 if(($_SESSION['role']??'')!=='staff'){header('Location: index.php');exit();}
 
 $u = currentUser();
 $activePage = 's-laporan';
+
+$success = isset($_GET['updated'])  ? 'Laporan berhasil diupdate!' :
+             (isset($_GET['deleted']) ? 'Laporan berhasil dihapus.'   : '');
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_laporan'])) {
     $id     = (int)$_POST['id_laporan'];
@@ -26,16 +31,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_laporan'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_laporan'])) {
     $id = (int)$_POST['id_laporan'];
     if ($id) {
-        // 1. Hapus serah_terima dulu (FK ke pencocokan)
+
         $pdo->prepare("
             DELETE FROM serah_terima
             WHERE id_pencocokan IN (
                 SELECT id_pencocokan FROM pencocokan WHERE id_laporan = ?
             )
         ")->execute([$id]);
-        // 2. Hapus pencocokan
+
         $pdo->prepare("DELETE FROM pencocokan WHERE id_laporan = ?")->execute([$id]);
-        // 3. Hapus laporan
+
         $pdo->prepare("DELETE FROM laporan_kehilangan WHERE id_laporan = ?")->execute([$id]);
     }
     header("Location: staff-laporan.php?deleted=1");
@@ -199,7 +204,7 @@ $updated = isset($_GET['updated']);
                     "dilaporkan"  => date("d F Y, H:i", strtotime($item["created_at"])),
                     "pelapor"     => $item["nama_pelapor"] ?? "—",
                     "email"       => $item["email_pelapor"] ?? "",
-                    "image"       => $item["image"] ?? "",
+                    "image"       => $item["image"] ? supabaseImageUrl($item["image"]) : "",
                   ]) ?>)'>
                     <i class="fas fa-eye"></i>Detail
                   </button>
