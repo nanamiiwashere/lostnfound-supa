@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             } elseif ($_FILES['image'] ['size'] > 3*1024*1024){
                 $error = 'File upload failed. Maximum allowed size is 3 MB';
             } else {
+                $fileName = uniqid('laporan_') . '.' . $ext;
                 $supabaseUrl = uploadToSupabase(
                   $_FILES['image']['tmp_name'], $fileName, 'uploads'
                 );
