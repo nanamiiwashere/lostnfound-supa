@@ -3,6 +3,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-handler.php';
 requireLogin();
 $u = currentUser();
 $activePage = 'buat';
@@ -27,13 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             } elseif ($_FILES['image'] ['size'] > 3*1024*1024){
                 $error = 'File upload failed. Maximum allowed size is 3 MB';
             } else {
-                $imageName = uniqid('laporan_') . '.' . $ext;
-                $uplaodDir = '../uploads/';
-                if (!is_dir($uplaodDir)) mkdir($uplaodDir, 0755, true);
+                $supabaseUrl = uploadToSupabase(
+                  $_FILES['image']['tmp_name'], $fileName, 'uploads'
+                );
 
-                move_uploaded_file($_FILES['image'] ['tmp_name'], $uplaodDir . $imageName);
+                if ($supabaseUrl !== false){
+                  $imageName = $supabaseUrl;
+                } else {
+                  $error = 'Gagal upload gambar ke server!, try again';
+                }
             }
-        }
+          }
 
 
         if (!$error){
@@ -41,6 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             VALUES (?, ?, ?, ?, ?, ?, ?, 'open', 'lost')") -> execute([$u['id'], $name, $description, $location, $date, $category, $imageName]);
 
             $success = 'Laporan berhasil dibuat!';
+            header("Location: buat-laporan.php?added=1");
+            exit();
         }
     }
 }
@@ -51,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Buat Laporan — LostnFound</title>
+  <title>Buat Laporan - LostnFound</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={corePlugins:{preflight:false}}</script>
