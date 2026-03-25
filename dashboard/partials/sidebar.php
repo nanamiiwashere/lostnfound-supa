@@ -1,7 +1,16 @@
 <?php
+require_once './Core/supabase-handler.php';
+
 $activePage = $activePage ?? '';
 $u = currentUser();
 $isStaff = ($u['role'] ?? '') === 'staff';
+
+function supabaseImageUrl($fileName) {
+  if (empty($fileName)) return null;
+  if (str_starts_with($fileName, 'http')) return $fileName;
+  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
+}
+
 ?>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">Lostn<span>Found</span></div>
@@ -38,7 +47,7 @@ $isStaff = ($u['role'] ?? '') === 'staff';
         $av = $u['avatar'] ?? '';
         if ($av):
           // OAuth = full URL, local = raw path dari DB misal "avatars/avatar_5_xxx.jpg"
-          $avSrc = str_starts_with($av, 'http') ? $av : '../uploads/' . ltrim($av, '/');
+          $avSrc = str_starts_with($av, 'http') ? $av : supabaseImageUrl($av);
       ?>
         <img src="<?= htmlspecialchars($avSrc) ?>" class="user-avatar-sm" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt=""/>
       <?php else: ?>
