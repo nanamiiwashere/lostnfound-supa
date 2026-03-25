@@ -17,8 +17,8 @@ $resolved   = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='reso
 
 function supabaseImageUrl($fileName) {
   if (empty($fileName)) return null;
-  if (str_start_with($filName, 'http')) return $fileName;
-  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $filename;
+  if (str_starts_with($fileName, 'http')) return $fileName;
+  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
 }
 
 ?>
