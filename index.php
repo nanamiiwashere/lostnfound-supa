@@ -1,6 +1,7 @@
 <?php
 require_once './connect.php';
 require_once './Auth/auth-handler.php';
+require_once './Core/supabase-handler.php';
 
 $stmt = $pdo->query("SELECT * FROM barang_temuan WHERE status='open' ORDER BY created_at DESC LIMIT 8");
 $barang_temuan = $stmt->fetchAll();
@@ -16,7 +17,7 @@ $resolved   = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='reso
 
 function supabaseImageUrl($fileName) {
   if (empty($fileName)) return null;
-  if (str_start_with($filName, 'http')) return $filName;
+  if (str_start_with($filName, 'http')) return $fileName;
   return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $filename;
 }
 
