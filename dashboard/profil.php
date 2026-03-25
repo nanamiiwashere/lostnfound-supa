@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-img.php';
+require_once '../Core/supabase-handler.php';
 requireLogin();
 $u = currentUser();
 $activePage = 'profile';
@@ -30,12 +32,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
       } elseif ($_FILES['avatar']['size'] > 2 * 1024 * 1024){
         $error = 'Ukuran foto maksimal 2 MB.';
       } else {
-          $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-          $avatarName = 'avatars/avatar_'. $u['id'] . '_' . time() . '.' . $ext;
-          $uploadDir = '../uploads/avatars';
-          if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-          move_uploaded_file($_FILES['avatar']['tmp_name'], '../uploads/' . $avatarName);
-      }
+            $fileName = 'avatars/avatar_' . $u['id'] . '_' . time() . '.' . $ext;
+            $supabaseUrl = uploadToSupabase(
+                $_FILES['avatar']['tmp_name'], $fileName, 'uploads'
+            );
+            
+            if ($supabaseUrl !== false) {
+                $avatarName = $fileName;
+            } else {
+                $error = 'Gagal upload gambar ke server. Silakan coba lagi.';
+            }
+        }
     }
 
     if (!$error){
@@ -107,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             $avatarSrc = null;
             if (!empty($user['avatar'])) {
                 // OAuth avatar = full URL, local upload = relative path
-                $avatarSrc = str_starts_with($user['avatar'], 'http') ? $user['avatar'] : '../uploads/' . $user['avatar'];
+                $avSrc = str_starts_with($av, 'http') ? $av : supabaseImageUrl($av);
             }
           ?>
           <?php if ($avatarSrc): ?>
