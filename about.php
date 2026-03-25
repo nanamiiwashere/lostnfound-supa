@@ -1,12 +1,20 @@
 <?php
 require_once './connect.php';
 require_once './Auth/auth3thparty.php';
+require_once './Core/supabase-handler.php';
 
 // Stats publik dari
 $totalBarang   = (int)$pdo->query("SELECT COUNT(*) FROM barang_temuan")->fetchColumn();
 $totalResolved = (int)$pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='resolved'")->fetchColumn();
 $totalStasiun  = (int)$pdo->query("SELECT COUNT(DISTINCT lokasi_ditemukan) FROM barang_temuan")->fetchColumn();
 $totalUser     = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role='user'")->fetchColumn();
+
+function supabaseImageUrl($fileName){
+  if (empty($fileName)) return null;
+  if (str_starts_with($fileName, 'http')) return $fileName;
+  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -44,7 +52,7 @@ $totalUser     = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role='user'"
         <div class="relative" id="avatarWrap">
           <button onclick="toggleDropdown()" class="btn-avatar">
             <?php if (!empty($u['avatar'])): ?>
-              <?php $av=$u['avatar']; $avSrc=str_starts_with($av,'http')?$av:'uploads/'.$av; ?>
+              <?php $av=$u['avatar']; $avSrc=str_starts_with($av,'http') ?$av: supabaseImageUrl($av); ?>
               <img src="<?= htmlspecialchars($avSrc) ?>" class="avatar-img" alt=""/>
             <?php else: ?>
               <div class="avatar-initial"><?= strtoupper(substr($u['name'],0,1)) ?></div>

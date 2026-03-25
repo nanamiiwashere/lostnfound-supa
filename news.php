@@ -13,6 +13,13 @@ $demoNews = [
     ['id_news'=>6, 'title'=>'Update Sistem: Notifikasi Real-time', 'body'=>'Kami telah memperbarui sistem notifikasi. Pengguna kini akan mendapatkan update real-time melalui email ketika ada barang temuan yang cocok dengan laporan kehilangan mereka.', 'author_id'=>null, 'created_at'=>'2026-02-10'],
 ];
 $displayNews = empty($news) ? $demoNews : $news;
+
+function supabaseImageUrl($fileName) {
+  if (empty($fileName)) return null;
+  if (str_starts_with($fileName, 'http')) return $fileName;
+  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -58,7 +65,7 @@ $displayNews = empty($news) ? $demoNews : $news;
             <?php if (!empty($u['avatar'])): ?>
               <?php
                 $av = $u['avatar'] ?? '';
-                $avSrc = str_starts_with($av, 'http') ? $av : 'uploads/' . $av;?>
+                $avSrc = str_starts_with($av, 'http') ? $av : supabaseImageUrl($av);?>
               <img src="<?= htmlspecialchars($avSrc) ?>" class="avatar-img" alt=""/>
             <?php else: ?>
               <div class="avatar-initial"><?= strtoupper(substr($u['name'],0,1)) ?></div>

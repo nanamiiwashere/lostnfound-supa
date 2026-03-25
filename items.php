@@ -1,6 +1,7 @@
 <?php 
 require_once './connect.php';
 require_once './Auth/auth3thparty.php';
+require_once './Core/supabase-handler.php';
 
 $q = trim($_GET['q'] ?? '');
 $catF = $_GET['category'] ?? 'all';
@@ -27,6 +28,13 @@ $catIcons = [
     'Jewelry'=>'fa-gem','Documents'=>'fa-id-card','Other'=>'fa-box',
     'Clothing'=>'fa-tshirt'
 ];
+
+function supabaseImageUrl($fileName){
+  if (empty($fileName)) return null;
+  if (str_starts_with($fileName, 'http')) return $fileName;
+  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +75,7 @@ $catIcons = [
             <?php if (!empty($u['avatar'])): ?>
               <?php
                 $av = $u['avatar'] ?? '';
-                $avSrc = str_starts_with($av, 'http') ? $av : 'uploads/' . $av;?>
+                $avSrc = str_starts_with($av, 'http') ? $av : supabaseImageUrl($av);?>
               <img src="<?= htmlspecialchars($avSrc) ?>" class="avatar-img" alt=""/>
             <?php else: ?>
               <div class="avatar-initial"><?= strtoupper(substr($u['name'],0,1)) ?></div>
@@ -199,7 +207,7 @@ $catIcons = [
           <div class="item-card h-100" onclick="location.href='./dashboard/item-detail.php?id=<?= $item['id_barang'] ?>'">
             <div class="item-card-img-wrap">
               <?php if (!empty($item['image'])): ?>
-                <img src="./uploads/<?= htmlspecialchars($item['image']) ?>" class="item-card-img" alt=""/>
+                <img src="<?= htmlspecialchars(supabaseImageUrl($item['image'])) ?>" class="item-card-img" alt=""/>
               <?php else: ?>
                 <div class="img-placeholder">
                   <i class="fas <?= $icon ?> fa-2x" style="color:rgba(255,255,255,.15);"></i>
