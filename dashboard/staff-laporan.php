@@ -345,7 +345,7 @@ function openDetailModal(data) {
   const imgWrap = document.getElementById('detail_img_wrap');
   const img     = document.getElementById('detail_img');
   if (data.image) {
-    img.src = '../uploads/' + data.image;
+    img.src = data.image;
     imgWrap.style.display = 'block';
   } else {
     imgWrap.style.display = 'none';

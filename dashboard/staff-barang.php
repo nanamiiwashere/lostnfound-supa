@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     
       }
 
+    if (!$error) {
         $pdo -> prepare("INSERT INTO barang_temuan (nama_barang, deskripsi, category, lokasi_ditemukan, tanggal_ditemukan, type, image, id_petugas, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open')")
          -> execute([$nama, $deskripsi, $category, $lokasi, $tanggal, $type, $imageName, $u['id']]);
         $success = isset($_GET['success']) ? 'Barang temuan berhasil ditambahkan!' : '';
@@ -68,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $success = 'Status berhasil diupdate.';
         exit();
     }
+}
 
 
 $showForm = isset($_GET['action']) && $_GET['action'] === 'add';
