@@ -13,6 +13,13 @@ $news = $pdo->query("SELECT * FROM news ORDER BY created_at DESC LIMIT 3")->fetc
 $totalLost  = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE type='lost'")->fetchColumn();
 $totalFound = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE type='found'")->fetchColumn();
 $resolved   = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='resolved'")->fetchColumn();
+
+function supabaseImageUrl($fileName) {
+  if (empty($fileName)) return null;
+  if (str_start_with($filName, 'http')) return $filName;
+  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $filename;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -60,7 +67,7 @@ $resolved   = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='reso
             <?php if (!empty($u['avatar'])): ?>
               <?php
                 $av = $u['avatar'] ?? '';
-                $avSrc = str_starts_with($av, 'http') ? $av : 'uploads/' . $av;?>
+                $avSrc = str_starts_with($av, 'http') ? $av : supabaseImageUrl($av);?>
               <img src="<?= htmlspecialchars($avSrc) ?>" class="avatar-img" alt=""/>
             <?php else: ?>
               <div class="avatar-initial"><?= strtoupper(substr($u['name'],0,1)) ?></div>
@@ -239,7 +246,7 @@ $resolved   = $pdo->query("SELECT COUNT(*) FROM barang_temuan WHERE status='reso
         <div class="item-card h-100" onclick="location.href='item-detail.php?id=<?= $item['id_barang'] ?>'">
           <div class="item-card-img-wrap">
             <?php if (!empty($item['image'])): ?>
-              <img src="./uploads/<?= htmlspecialchars($item['image']) ?>" class="item-card-img" alt=""/>
+              <img src="<?= htmlspecialchars(supabaseImageUrl($item['image'])) ?>" class="item-card-img" alt=""/>
             <?php else: ?>
               <div class="img-placeholder">
                 <i class="fas <?= $icon ?> fa-2x" style="color:rgba(255,255,255,.15);"></i>
