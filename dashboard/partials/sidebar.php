@@ -4,13 +4,6 @@ require_once '../Core/supabase-handler.php';
 $activePage = $activePage ?? '';
 $u = currentUser();
 $isStaff = ($u['role'] ?? '') === 'staff';
-
-function supabaseImageUrl($fileName) {
-  if (empty($fileName)) return null;
-  if (str_starts_with($fileName, 'http')) return $fileName;
-  return SUPABASE_URL . '/storage/v1/object/public/' . SUPABASE_BUCKET . '/' . $fileName;
-}
-
 ?>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">Lostn<span>Found</span></div>
