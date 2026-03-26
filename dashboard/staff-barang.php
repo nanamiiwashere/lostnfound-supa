@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-handler.php';
+require_once '../Core/supabase-img.php';
 
 requireLogin();
 if(($_SESSION['role']?? '') !== 'staff'){
@@ -26,16 +28,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $imageName = null;
         if (!empty($_FILES['image']['name'])) {
             $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $imageName = 'barang_' . uniqid() . '.' . $ext;
-            move_uploaded_file($_FILES['image']['tmp_name'], '../uploads/' . $imageName);
-        }
+            $fileName = uniqid('barang_') . '.' . $ext;
+              $supabaseUrl = uploadToSupabase($_FILES['image']['tmp_name'], $fileName, 'uploads');
 
-        $pdo -> prepare("INSERT INTO barang_temuan (nama_barang, deskripsi, category, lokasi_ditemukan, tanggal_ditemukan, type, image, id_petugas, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open')")
-         -> execute([$nama, $deskripsi, $category, $lokasi, $tanggal, $type, $imageName, $u['id']]);
-        $success = isset($_GET['success']) ? 'Barang temuan berhasil ditambahkan!' : '';
-        header("Location: staff-barang.php?success=1");
+              if ($supabaseUrl !== false){
+                $imageName = $fileName;
+              } else {
+                $error = 'Gagal upload gambar ke server!, try again';
+              }
+
+              $pdo -> prepare("INSERT INTO barang_temuan (nama_barang, deskripsi, category, lokasi_ditemukan, tanggal_ditemukan, type, image, id_petugas, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open')") -> execute([$nama, $deskripsi, $category, $lokasi, $tanggal, $type, $imageName, $u['id']]);
+              $success = isset($_GET['success']) ? 'Barang temuan berhasil ditambahkan!' : '';
+              header("Location: staff-barang.php?success=1");
+              exit();
+            }
+    }
+    
+
+    if (isset($_POST['delete_barang'])){
+        $id = (int)$_POST['id_barang'];
+        $pdo -> prepare("DELETE FROM pencocokan WHERE id_barang=?") -> execute([$id]);
+        $pdo -> prepare("DELETE FROM barang_temuan WHERE id_barang=?") -> execute([$id]);
+        $success = isset($_GET['deleted']) ? 'BBarang temuan berhasil dihapus.' : '';
+        header("Location: staff-barang.php?deleted=1");
         exit();
-
     }
 
     if (isset($_POST['update_status'])){
@@ -45,8 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             $pdo -> prepare("UPDATE barang_temuan SET status=? WHERE id_barang=?") -> execute([$status, $id]);
         } 
         $success = 'Status berhasil diupdate.';
+        exit();
     }
 }
+
 
 $showForm = isset($_GET['action']) && $_GET['action'] === 'add';
 
@@ -66,7 +84,7 @@ $categories = ['Electronics','Bags','Documents','Accessories','Clothing','Jewelr
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Barang Temuan — Staff</title>
+  <title>Barang Temuan - Staff</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet"/>
@@ -86,6 +104,12 @@ $categories = ['Electronics','Bags','Documents','Accessories','Clothing','Jewelr
   <div class="page-content">
     <?php if ($success): ?>
       <div class="alert-success mb-4"><i class="fas fa-check-circle me-2"></i><?= $success ?></div>
+    <?php endif; ?>
+    <?php if (isset($_GET['deleted'])): ?>
+      <div class="alert-success mb-4"><i class="fas fa-trash me-2"></i>Barang temuan berhasil dihapus.</div>
+    <?php endif; ?>
+    <?php if (isset($_GET['success'])): ?>
+      <div class="alert-success mb-4"><i class="fas fa-check-circle me-2"></i>Barang temuan berhasil ditambahkan!</div>
     <?php endif; ?>
     <?php if ($error): ?>
       <div class="alert-error mb-4"><i class="fas fa-exclamation-circle me-2"></i><?= $error ?></div>
@@ -185,7 +209,7 @@ $categories = ['Electronics','Bags','Documents','Accessories','Clothing','Jewelr
               <td style="color:#64748b;"><?= $b['id_barang'] ?></td>
               <td>
                 <?php if (!empty($b['image'])): ?>
-                  <img src="../uploads/<?= htmlspecialchars($b['image']) ?>" style="width:40px;height:40px;object-fit:cover;border-radius:8px;"/>
+                  <img src="<?= htmlspecialchars(supabaseImageUrl($b['image'])) ?>" style="width:40px;height:40px;object-fit:cover;border-radius:8px;"/>
                 <?php else: ?>
                   <div style="width:40px;height:40px;background:rgba(255,255,255,.05);border-radius:8px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-image" style="color:#475569;font-size:.75rem;"></i></div>
                 <?php endif; ?>
@@ -209,7 +233,18 @@ $categories = ['Electronics','Bags','Documents','Accessories','Clothing','Jewelr
                 </form>
               </td>
               <td>
-                <a href="staff-pencocokan.php?action=add&id_barang=<?= $b['id_barang'] ?>" class="btn-ghost-sm" title="Cocokkan"><i class="fas fa-link"></i></a>
+                <div class="d-flex gap-1 flex-wrap">
+                  <a href="staff-pencocokan.php?action=add&id_barang=<?= $b['id_barang'] ?>" class="btn-ghost-sm" title="Cocokkan">
+                    <i class="fas fa-link"></i>
+                  </a>
+                  <form method="POST" onsubmit="return confirm('Hapus barang ini? Data pencocokan terkait juga akan dihapus.')">
+                    <input type="hidden" name="id_barang" value="<?= $b['id_barang'] ?>"/>
+                    <input type="hidden" name="delete_barang" value="1"/>
+                    <button type="submit" class="btn-ghost-sm btn-danger-sm">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
               </td>
             </tr>
             <?php endforeach; ?>
@@ -236,4 +271,3 @@ function previewImg(input) {
 }
 </script>
 </body>
-</html>
