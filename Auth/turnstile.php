@@ -15,6 +15,6 @@ function verifyTurnstile(string $token, string $ip): bool{
     );
 
     $data = json_decode($response, true);
-    return $data['success'] === true;
+    return ($data['success']) === true;
 }
 ?>
