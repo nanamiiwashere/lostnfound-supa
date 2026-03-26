@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-img.php';
+require_once '../Core/supabase-handler.php';
 requireLogin();
 $u = currentUser();
 $activePage = 'profile';
@@ -30,12 +32,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
       } elseif ($_FILES['avatar']['size'] > 2 * 1024 * 1024){
         $error = 'Ukuran foto maksimal 2 MB.';
       } else {
-          $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-          $avatarName = 'avatars/avatar_'. $u['id'] . '_' . time() . '.' . $ext;
-          $uploadDir = '../uploads/avatars';
-          if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-          move_uploaded_file($_FILES['avatar']['tmp_name'], '../uploads/' . $avatarName);
-      }
+            $fileName = 'avatars/avatar_' . $u['id'] . '_' . time() . '.' . $ext;
+            $supabaseUrl = uploadToSupabase(
+                $_FILES['avatar']['tmp_name'], $fileName, 'uploads'
+            );
+            
+            if ($supabaseUrl !== false) {
+                $avatarName = $fileName;
+            } else {
+                $error = 'Gagal upload gambar ke server. Silakan coba lagi.';
+            }
+        }
     }
 
     if (!$error){
@@ -77,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profil — LostnFound</title>
+  <title>Profil - LostnFound</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={corePlugins:{preflight:false}}</script>
@@ -106,8 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
           <?php
             $avatarSrc = null;
             if (!empty($user['avatar'])) {
-                // OAuth avatar = full URL, local upload = relative path
-                $avatarSrc = str_starts_with($user['avatar'], 'http') ? $user['avatar'] : '../uploads/' . $user['avatar'];
+                $avatarSrc = supabaseImageUrl($user['avatar'], 'uploads');
             }
           ?>
           <?php if ($avatarSrc): ?>
@@ -144,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
                 <?php
                   $avatarSrc2 = null;
                   if (!empty($user['avatar'])) {
-                      $avatarSrc2 = str_starts_with($user['avatar'], 'http') ? $user['avatar'] : '../uploads/' . $user['avatar'];
+                      $avatarSrc2 = supabaseImageUrl($user['avatar'], 'uploads');
                   }
                 ?>
                 <?php if ($avatarSrc2): ?>
