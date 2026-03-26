@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-img.php';
 requireLogin();
 
 $u  = currentUser();
@@ -90,7 +91,7 @@ $statusLabel = match($item['status']) {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title><?= htmlspecialchars($item['nama_barang']) ?> — LostnFound</title>
+  <title><?= htmlspecialchars($item['nama_barang']) ?> - LostnFound</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={corePlugins:{preflight:false}}</script>
@@ -131,7 +132,7 @@ $statusLabel = match($item['status']) {
       <div class="col-lg-8">
  
         <?php if (!empty($item['image'])): ?>
-          <img src="../uploads/<?= htmlspecialchars($item['image']) ?>" class="w-100 rounded-3 mb-4" style="max-height:320px;object-fit:cover;" alt="foto barang"/>
+          <img src="<?= htmlspecialchars(supabaseImageUrl($item['image'])) ?>" class="w-100 rounded-3 mb-4" style="max-height:320px;object-fit:cover;" alt="foto barang"/>
         <?php else: ?>
           <div class="dash-card mb-4 d-flex align-items-center justify-content-center" style="height:200px;">
             <i class="fas <?= $icon ?> fa-4x" style="color:rgba(255,255,255,.08);"></i>
