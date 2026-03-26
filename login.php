@@ -37,7 +37,7 @@ $urlError = $_GET['error'] ?? '';
   <link rel="stylesheet" href="./style.css"/>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
-<body class="auth-body">
+<body class="auth-body" style="overflow-y:auto; height:auto; align-items:flex-start; padding:40px 16px;">
  
 <div id="page-loader"><div class="loader-ring"></div></div>
  
