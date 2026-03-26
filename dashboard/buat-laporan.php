@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
                 );
 
                 if ($supabaseUrl !== false){
-                  $imageName = $supabaseUrl;
+                  $imageName = $fileName;
                 } else {
                   $error = 'Gagal upload gambar ke server!, try again';
                 }
