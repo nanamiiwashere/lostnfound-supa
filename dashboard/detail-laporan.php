@@ -2,8 +2,6 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
-require_once '../Core/supabase-handler.php';
-require_once '../Core/supabase-img.php';
 requireLogin();
 
 $u = currentUser();
@@ -23,6 +21,7 @@ if (!$item){
     exit();
 }
 
+// Cek apakah ada pencocokan yang sudah di-verified staff untuk laporan ini
 $cekVerified = $pdo->prepare("
     SELECT p.id_pencocokan, b.nama_barang AS nama_barang_temuan, b.lokasi_ditemukan
     FROM pencocokan p
@@ -33,6 +32,7 @@ $cekVerified = $pdo->prepare("
 $cekVerified->execute([$id]);
 $pencocokanVerified = $cekVerified->fetch();
 
+// Cek apakah ada klaim pending untuk laporan ini (menunggu verifikasi staff)
 $cekPending = $pdo->prepare("
     SELECT COUNT(*) FROM pencocokan WHERE id_laporan = ? AND status_verifikasi = 'process'
 ");
@@ -51,6 +51,7 @@ $cekSerah -> execute([$id]);
 $dataSerah = $cekSerah -> fetch();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['konfirmasi'])){
+    // Keamanan: hanya boleh konfirmasi jika ada pencocokan verified dari staff
     if (!$pencocokanVerified) {
         $konfirmasiError = 'Konfirmasi belum bisa dilakukan. Petugas belum memverifikasi kecocokan barang kamu.';
     } else {
@@ -69,7 +70,7 @@ $confirmed = isset($_GET['confirmed']);
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Detail Laporan - LostnFound</title>
+  <title>Detail Laporan — LostnFound</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={corePlugins:{preflight:false}}</script>
@@ -116,7 +117,7 @@ $confirmed = isset($_GET['confirmed']);
           </div>
  
           <?php if (!empty($item['image'])): ?>
-            <img src="<?= htmlspecialchars(supabaseImageUrl($item['image'])) ?>" class="w-100 rounded-3 mb-3" style="max-height:280px;object-fit:cover;" alt="foto barang"/>
+            <img src="../uploads/<?= htmlspecialchars($item['image']) ?>" class="w-100 rounded-3 mb-3" style="max-height:280px;object-fit:cover;" alt="foto barang"/>
           <?php endif; ?>
  
           <div class="row g-3">

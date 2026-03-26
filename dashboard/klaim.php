@@ -2,7 +2,6 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
-require_once '../Core/supabase-img.php';
 requireLogin();
 $u = currentUser();
 $activePage = 'klaim';
