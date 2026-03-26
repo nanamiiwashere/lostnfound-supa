@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-handler.php';
+require_once '../Core/supabase-img.php';
 
 requireLogin();
 if(($_SESSION['role']??'')!=='staff'){
@@ -76,7 +78,12 @@ $barangOpen  = $pdo->query("SELECT * FROM barang_temuan WHERE status='open' ORDE
 
 
 $pencocokan = $pdo->query("
-    SELECT p.*, b.nama_barang, b.lokasi_ditemukan, l.nama_barang AS nama_laporan, l.lokasi_kehilangan, u.nama AS nama_petugas, ul.nama AS nama_pelapor, p.note
+    SELECT p.*, 
+           b.nama_barang, b.lokasi_ditemukan, b.image AS barangImage, b.category,
+           l.nama_barang AS nama_laporan, l.lokasi_kehilangan, l.deskripsi AS deskripsi_laporan,
+           u.nama AS nama_petugas, 
+           ul.nama AS nama_pelapor, ul.email AS email_pelapor,
+           p.note
     FROM pencocokan p
     LEFT JOIN barang_temuan b ON p.id_barang=b.id_barang
     LEFT JOIN laporan_kehilangan l ON p.id_laporan=l.id_laporan
@@ -91,7 +98,7 @@ $pencocokan = $pdo->query("
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pencocokan — Staff</title>
+  <title>Pencocokan - Staff</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet"/>

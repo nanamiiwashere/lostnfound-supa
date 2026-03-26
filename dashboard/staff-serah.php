@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../connect.php';
 require_once '../Auth/auth3thparty.php';
+require_once '../Core/supabase-handler.php';
+require_once '../Core/supabase-img.php';
 
 requireLogin();
 if(($_SESSION['role']??'')!=='staff'){
@@ -35,10 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_serah'])) {
     if (!$dataCocokan) {
         $error = 'Pencocokan tidak ditemukan atau belum diverifikasi.';
     } elseif ($dataCocokan['status_laporan'] !== 'resolved') {
-        // Hanya boleh serah terima jika user sudah konfirmasi kepemilikan (status=resolved)
+        
         $error = 'Pemilik barang belum mengkonfirmasi kepemilikan. Minta pelapor konfirmasi terlebih dahulu di halaman laporan mereka.';
     } else {
-        // Cek sudah ada serah terima untuk pencocokan ini?
+        
         $cek = $pdo->prepare("SELECT COUNT(*) FROM serah_terima WHERE id_pencocokan=?");
         $cek->execute([$id_pencocokan]);
         if ($cek->fetchColumn() > 0) {
@@ -47,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_serah'])) {
             $pdo->prepare("INSERT INTO serah_terima (id_pencocokan,tanggal_serah_terima,nama_penerima,keterangan,id_petugas,id_pelapor) VALUES (?,NOW(),?,?,?,?)")
                 ->execute([$id_pencocokan, $nama_penerima, $keterangan, $u['id'], $id_pelapor]);
 
-            // FIX: Update laporan → closed DAN barang_temuan → resolved (dua-duanya)
+           
             $pdo->prepare("UPDATE laporan_kehilangan SET status='closed' WHERE id_laporan=?")
                 ->execute([$dataCocokan['id_laporan']]);
             $pdo->prepare("UPDATE barang_temuan SET status='resolved' WHERE id_barang=?")
@@ -61,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_serah'])) {
 $showForm   = isset($_GET['action']) && $_GET['action'] === 'add';
 $preCocokan = (int)($_GET['id_pencocokan'] ?? 0);
 
-// Ambil pencocokan verified yang belum ada serah terimanya
 $verified = $pdo->query("
     SELECT p.id_pencocokan, p.id_laporan, b.nama_barang AS nama_barang_temuan,
            l.nama_barang AS nama_laporan, u.nama AS nama_pelapor,
@@ -76,7 +77,6 @@ $verified = $pdo->query("
     ORDER BY p.tanggal_pencocokan DESC
 ")->fetchAll();
 
-// FIX: JOIN riwayat tidak duplikat kondisi
 $riwayat = $pdo->query("
     SELECT st.*, p.id_pencocokan, b.nama_barang AS barang_temuan,
            l.nama_barang AS laporan_barang, up.nama AS nama_petugas,
