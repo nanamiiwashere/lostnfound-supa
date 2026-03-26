@@ -35,6 +35,7 @@ $urlError = $_GET['error'] ?? '';
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="./style.css"/>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body class="auth-body">
  
@@ -91,6 +92,10 @@ $urlError = $_GET['error'] ?? '';
         </button>
       </div>
     </div>
+    <div class="cf-turnstile mb-3"
+          data-sitekey="<?= CF_TURNSTILE_SITE_KEY ?>"
+          data-theme="dark">
+      </div>
     <button type="submit" class="auth-btn mb-3" id="submitBtn">
       <i class="fas fa-sign-in-alt me-2"></i>Sign In
     </button>

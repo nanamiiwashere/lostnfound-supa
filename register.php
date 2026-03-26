@@ -2,6 +2,7 @@
 require_once './connect.php';
 require_once './Auth/auth3thparty.php';
 require_once './Auth/auth-handler.php';
+require_once './Auth/turnstile.php';
 
 if (isLoggedIn()){
     header('Location: ' . APP_URL . '/dashboard/index.php');
@@ -29,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     $pw = $_POST['password'] ?? '';
     $confirm = $_POST['confirm'] ?? '';
 
-    if (!$nama || !$email || !$pw || !$confirm){
+    $token = $_POST['cf-turnstile-response'] ?? '';
+    if (!verifyTurnstile($token, $_SERVER['REMOTE_ADDR'])){
+      $error = 'Human verification failed. Please Try Again.';
+    } elseif (!$nama || !$email || !$pw || !$confirm){
       $error = ' All fields are required.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)){
       $error = ' Invalid email format.';
@@ -38,23 +42,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     } elseif ($pw !== $confirm) {
       $error = '  Password do not match.';
     } else {
-      $chk = $pdo -> prepare("SELECT id_user FROM users WHERE email = ?");
-      $chk -> execute([$email]);
-      if ($chk -> fetch()){
-        $error = 'Email already registered. <a href="login.php" style="color:#f97316;">Sign in?</a>';
-      } else {
-        $pdo -> prepare("INSERT INTO users (nama, email, password, oauth_provider, role) VALUES (?, ?, ?, 'email', 'user')")
-          -> execute([$nama, $email, password_hash($pw, PASSWORD_BCRYPT)]);
-          $stmt = $pdo -> prepare("SELECT * FROM users WHERE email = ?");
-          $user = $stmt -> fetch();
-          if ($user){
-            loginUser($user);
-            header ('Location: ' . APP_URL . 'dashboard/index.php');
-            exit();
-          }
+        $chk = $pdo -> prepare("SELECT id_user FROM users WHERE email = ?");
+        $chk -> execute([$email]);
+        if ($chk -> fetch()){
+          $error = 'Email already registered. <a href="login.php" style="color:#f97316;">Sign in?</a>';
+        } else {
+          $pdo -> prepare("INSERT INTO users (nama, email, password, oauth_provider, role) VALUES (?, ?, ?, 'email', 'user')")
+            -> execute([$nama, $email, password_hash($pw, PASSWORD_BCRYPT)]);
+            $stmt = $pdo -> prepare("SELECT * FROM users WHERE email = ?");
+            $user = $stmt -> fetch();
+            if ($user){
+              loginUser($user);
+              header ('Location: ' . APP_URL . 'dashboard/index.php');
+              exit();
+            }
 
-           $success = 'Account created! You can now login.';
-      }
+            $success = 'Account created! You can now login.';
+        }
     }
 }
 ?>
@@ -69,9 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="./style.css"/>
-  <style>
-   
-  </style>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
  
@@ -125,6 +127,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
       <label class="form-lbl">Confirm Password</label>
       <input type="password" name="confirm" id="confirmInput" class="form-inp" placeholder="Re-enter password" required/>
       <div id="matchHint" style="font-size:.72rem;margin-top:4px;min-height:16px;"></div>
+    </div>
+      <div class="cf-turnstile mb-3"
+         data-sitekey="<?= CF_TURNSTILE_SITE_KEY ?>"
+         data-theme="dark">
     </div>
     <button type="submit" class="btn-login mb-3" id="submitBtn">
       <i class="fas fa-user-plus me-2"></i>Create Account
