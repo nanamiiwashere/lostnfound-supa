@@ -27,7 +27,7 @@ $error = '';
                 loginUser($user);
                 $_SESSION['role'] = $user['role'];
                 if ($user['role'] === 'staff') {
-                    header('Location: ' . APP_URL . '/staff/index.php');
+                    header('Location: ' . APP_URL . '/dashboard/staff-laporan.php');
                 } else {
                     header('Location: ' . APP_URL . '/dashboard/index.php');
                 }
